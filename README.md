@@ -1,3 +1,6 @@
+![Java CI with Maven](https://github.com/mickroll/maven-dependency-duplicator-plugin/workflows/Java%20CI%20with%20Maven/badge.svg)
+![Maven Package](https://github.com/mickroll/maven-dependency-duplicator-plugin/workflows/Maven%20Package/badge.svg)
+
 # maven-dependency-duplicator-plugin
 
 This Maven plugin duplicates existing dependencies. Each project is treated separate, at the beginning of the reactor build.
