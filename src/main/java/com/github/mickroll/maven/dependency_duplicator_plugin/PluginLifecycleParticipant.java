@@ -3,7 +3,6 @@ package com.github.mickroll.maven.dependency_duplicator_plugin;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,67 +24,94 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
     private final String PROPERTY_SOURCE_DEPENDENCIES = "ddp.sourceDependencies";
     private final String PROPERTY_TARGET_SCOPE = "ddp.targetScope";
     private final String PROPERTY_TARGET_TYPE = "ddp.targetType";
+    private final String PROPERTY_ADD_DEPENDENCIES_DOWNSTREAM = "ddp.addDependenciesDownstream";
 
     @Override
-    public void afterProjectsRead(MavenSession session) throws MavenExecutionException {
+    public void afterProjectsRead(final MavenSession session) throws MavenExecutionException {
         LOG.info("duplicating dependencies to projects in reactor");
-        for (MavenProject project : session.getAllProjects()) {
-            DuplicatorConfig config = readConfig(project);
+
+        if (session.getProjectDependencyGraph() == null) {
+            // may happen, if module graph is not valid
+            LOG.warn("Execution of maven-dependency-duplicator-plugin is not supported in this environment: "
+                    + "Current MavenSession does not provide a ProjectDependencyGraph.");
+            return;
+        }
+
+        for (final MavenProject project : session.getAllProjects()) {
+            final DuplicatorConfig config = readConfig(project);
             if (config.getDependenciesToMatch().isEmpty()) {
                 continue;
             }
             LOG.debug("config for {}: {}", project.getName(), config);
 
-            List<Dependency> newDependencies = new ArrayList<>();
-            for (Dependency existingDependency : project.getDependencies()) {
-                Optional<DependencyMatcher> foundMatcher = findAnyMatcher(config, existingDependency);
+            final List<Dependency> newDependencies = new ArrayList<>();
+            for (final Dependency existingDependency : project.getDependencies()) {
+                final Optional<DependencyMatcher> foundMatcher = findAnyMatcher(config, existingDependency);
                 if (!foundMatcher.isPresent()) {
                     continue;
                 }
-                
-                Dependency cloned = existingDependency.clone();
+
+                final Dependency cloned = existingDependency.clone();
                 config.getTargetType().ifPresent(cloned::setType);
                 config.getTargetScope().ifPresent(cloned::setScope);
-                LOG.debug("[{}] adding dependency {} because of {}", project.getName(), cloned.getManagementKey(), foundMatcher.get());
+                LOG.debug("[{}] duplicating dependency {} because of {}",
+                        project.getName(), getNameForLog(existingDependency), foundMatcher.get());
                 newDependencies.add(cloned);
             }
             if (!newDependencies.isEmpty()) {
-                LOG.info("[{}] adding dependencies {}", project.getName(), newDependencies.stream().map(Dependency::getManagementKey).collect(Collectors.toList()));
-                project.getDependencies().addAll(newDependencies);
+                final List<MavenProject> targetProjectsForNewDependencies = new ArrayList<>();
+                targetProjectsForNewDependencies.add(project);
+                if (config.isAddDependenciesDownstream()) {
+                    targetProjectsForNewDependencies.addAll(session.getProjectDependencyGraph().getDownstreamProjects(project, true));
+                }
+
+                LOG.info("{} adding duplicated dependencies: {}",
+                        targetProjectsForNewDependencies.stream().map(MavenProject::getName).collect(Collectors.toList()),
+                        newDependencies.stream().map(this::getNameForLog).collect(Collectors.toList()));
+
+                for (final MavenProject downstreamProject : targetProjectsForNewDependencies) {
+                    downstreamProject.getDependencies().addAll(newDependencies);
+                }
             }
         }
+
         LOG.info("finished.");
     }
 
-    private DuplicatorConfig readConfig(MavenProject project) {
-        String config = project.getProperties().getProperty(PROPERTY_SOURCE_DEPENDENCIES, "");
-        List<DependencyMatcher> dependenciesToMatch = Stream.of(config.split(","))
-                .map(String::trim)
-                .filter(element -> !element.isEmpty())
-                .map(DependencyMatcher::new)
-                .collect(Collectors.toList());
+    private DuplicatorConfig readConfig(final MavenProject project) {
+        final String config = project.getProperties().getProperty(PROPERTY_SOURCE_DEPENDENCIES, "");
+        final List<DependencyMatcher> dependenciesToMatch = Stream.of(config.split(",")).map(String::trim)
+                .filter(element -> !element.isEmpty()).map(DependencyMatcher::new).collect(Collectors.toList());
 
-        String targetScope = project.getProperties().getProperty(PROPERTY_TARGET_SCOPE);
-        String targetType = project.getProperties().getProperty(PROPERTY_TARGET_TYPE);
+        final String targetScope = project.getProperties().getProperty(PROPERTY_TARGET_SCOPE);
+        final String targetType = project.getProperties().getProperty(PROPERTY_TARGET_TYPE);
 
-        return new DuplicatorConfig(dependenciesToMatch, targetScope, targetType);
+        final boolean addDependenciesDownstream =
+                Boolean.valueOf(project.getProperties().getProperty(PROPERTY_ADD_DEPENDENCIES_DOWNSTREAM, Boolean.TRUE.toString()));
+
+        return new DuplicatorConfig(dependenciesToMatch, targetScope, targetType, addDependenciesDownstream);
     }
-    
-    private Optional<DependencyMatcher> findAnyMatcher(DuplicatorConfig config, Dependency dependency) {
-        return config.getDependenciesToMatch().stream()
-            .filter(matcher -> matcher.matches(dependency))
-            .findFirst();
+
+    private Optional<DependencyMatcher> findAnyMatcher(final DuplicatorConfig config, final Dependency dependency) {
+        return config.getDependenciesToMatch().stream().filter(matcher -> matcher.matches(dependency)).findFirst();
+    }
+
+    private String getNameForLog(final Dependency dependency) {
+        return dependency.getManagementKey() + ":" + dependency.getScope();
     }
 
     public static class DuplicatorConfig {
         private final List<DependencyMatcher> dependenciesToMatch;
         private final String targetScope;
         private final String targetType;
+        private final boolean addDependenciesDownstream;
 
-        public DuplicatorConfig(List<DependencyMatcher> dependenciesToMatch, String targetScope, String targetType) {
+        public DuplicatorConfig(final List<DependencyMatcher> dependenciesToMatch, final String targetScope, final String targetType,
+                final boolean addDependenciesDownstream) {
             this.dependenciesToMatch = dependenciesToMatch;
             this.targetScope = targetScope;
             this.targetType = targetType;
+            this.addDependenciesDownstream = addDependenciesDownstream;
         }
 
         public List<DependencyMatcher> getDependenciesToMatch() {
@@ -100,9 +126,13 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
             return Optional.ofNullable(targetType);
         }
 
+        public boolean isAddDependenciesDownstream() {
+            return addDependenciesDownstream;
+        }
+
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
+            final StringBuilder sb = new StringBuilder();
             sb.append("dependenciesToMatch=").append(dependenciesToMatch);
             if (targetScope != null) {
                 sb.append(", targetScope=").append(targetScope);
@@ -110,19 +140,20 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
             if (targetType != null) {
                 sb.append(", targetType=").append(targetType);
             }
+            sb.append(", addDependenciesDownstream=").append(addDependenciesDownstream);
             return sb.toString();
         }
     }
 
     public static class DependencyMatcher {
 
-        private Pattern dependencyPattern;
+        private final Pattern dependencyPattern;
 
-        public DependencyMatcher(String dependencyRegex) {
+        public DependencyMatcher(final String dependencyRegex) {
             this.dependencyPattern = Pattern.compile(dependencyRegex);
         }
 
-        public boolean matches(Dependency dependency) {
+        public boolean matches(final Dependency dependency) {
             return dependencyPattern.matcher(dependency.getManagementKey()).matches();
         }
 
