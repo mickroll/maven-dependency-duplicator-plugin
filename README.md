@@ -7,12 +7,12 @@ This Maven plugin duplicates existing dependencies. Each project is treated sepa
   
 Configure this plugin via properties, for example in the root pom of your multi module maven project.
 
-| property | description |
-| ---      | ---         |
-| `ddp.sourceDependencies` | dependencies to duplicate, as a comma separated list in the form: `groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier]` Each dependency definition is treated as a regular expression, being matched against each existing dependency. |
-| `ddp.targetScope` | defines the new `scope` of the duplicated dependency |
-| `ddp.targetType`  | defines the new `type` of the duplicated dependency |
-| `ddp.addDependenciesDownstream` | Add duplicated dependencies also to downstream projects of the project hey were found in. A downstream project is a project that directly or indirectly depends on the given project. |
+| property | default | description |
+| ---      | ---     | ---         |
+| `ddp.sourceDependencies` | - | dependencies to duplicate, as a comma separated list in the form: `groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier]` Each dependency definition is treated as a regular expression, being matched against each existing dependency. |
+| `ddp.targetScope` | same as original | defines the new `scope` of the duplicated dependency |
+| `ddp.targetType`  | same as original | defines the new `type` of the duplicated dependency |
+| `ddp.addDependenciesDownstream` | `true` | Add duplicated dependencies also to downstream projects of the project hey were found in. A downstream project is a project that directly or indirectly depends on the given project. |
 
 The property configuration is read separately for each project, so different configurations may be used within the same build.
   
