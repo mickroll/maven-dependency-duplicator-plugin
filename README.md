@@ -21,7 +21,7 @@ The property configuration is read separately for each project, so different con
 If the following properties are defined in the root pom.xml of a multi module maven project:
 
     <properties>
-        <ddp.sourceDependencies>com.example:project-1:jar, com.example:sub-.:jar</ddp.sourceDependencies>
+        <ddp.sourceDependencies>com.example:project-1:jar, com.example:sub-.*:jar</ddp.sourceDependencies>
         <ddp.targetType>test-jar</ddp.targetType>
         <ddp.targetScope>test</ddp.targetScope>
     </properties> 
