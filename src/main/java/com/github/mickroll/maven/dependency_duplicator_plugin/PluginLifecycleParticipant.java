@@ -59,6 +59,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                 final Dependency cloned = existingDependency.clone();
                 config.getTargetType().ifPresent(cloned::setType);
                 config.getTargetScope().ifPresent(cloned::setScope);
+                cloned.clearManagementKey(); // value is cached, beyond changes via setters
                 LOG.debug("[{}] duplicating dependency {} because of {}", project.getName(), getNameForLog(existingDependency), foundMatcher.get());
                 duplicatedDependencies.add(cloned);
             }
