@@ -1,5 +1,6 @@
 package com.github.mickroll.maven.dependency_duplicator_plugin;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,24 +12,33 @@ import java.util.stream.Collectors;
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.execution.ProjectDependencyGraph;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.project.DuplicateProjectException;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.project.ProjectSorter;
 import org.codehaus.plexus.component.annotations.Component;
+import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component(role = AbstractMavenLifecycleParticipant.class)
 public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PluginLifecycleParticipant.class);
+    @Requirement
+    private Logger logger;
+
+    // needs maven 3.7.0, see https://github.com/apache/maven/pull/368
+    // @Requirement(hint = GraphBuilder.HINT)
+    // private GraphBuilder graphBuilder;
 
     @Override
     public void afterProjectsRead(final MavenSession session) throws MavenExecutionException {
-        LOG.info("duplicating dependencies to projects in reactor");
+        logger.info("duplicating dependencies to projects in reactor");
 
         if (session.getProjectDependencyGraph() == null) {
             // may happen, if module graph is not valid
-            LOG.warn("Execution of maven-dependency-duplicator-plugin is not supported in this environment: "
+            logger.warn("Execution of maven-dependency-duplicator-plugin is not supported in this environment: "
                     + "Current MavenSession does not provide a ProjectDependencyGraph.");
             return;
         }
@@ -37,7 +47,51 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
         addNewDependenciesToProjects(newProjectDependencies);
 
-        LOG.info("finished.");
+        logger.info("rebuilding project dependency graph");
+        rebuildDependencyGraph(session);
+
+        logger.info("finished.");
+    }
+
+    private void rebuildDependencyGraph(final MavenSession session) {
+        final ProjectDependencyGraph graph = session.getProjectDependencyGraph();
+        final ProjectSorter newSorter;
+        try {
+            newSorter = new ProjectSorter(graph.getAllProjects());
+        } catch (CycleDetectedException | DuplicateProjectException e) {
+            logger.error("unable to rebuild project dependency graph", e);
+            return;
+        }
+
+        if ("org.apache.maven.graph.DefaultProjectDependencyGraph".equals(graph.getClass().getName())) {
+            replaceProjectSorter(graph, "sorter", newSorter);
+        } else if ("org.apache.maven.graph.FilteredProjectDependencyGraph".equals(graph.getClass().getName())) {
+            try {
+                final Field field = graph.getClass().getDeclaredField("projectDependencyGraph");
+                field.setAccessible(true);
+                final Object nestedGraph = field.get(graph);
+                if ("org.apache.maven.graph.DefaultProjectDependencyGraph".equals(nestedGraph.getClass().getName())) {
+                    replaceProjectSorter(nestedGraph, "sorter", newSorter);
+                } else {
+                    logger.warn("unable to rebuild project dependency graph, unexpected nested graph implementation found in {}: {}",
+                            graph.getClass().getName(), nestedGraph.getClass().getName());
+                }
+            } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+                logger.error("unable to set rebuilt project dependency graph", e);
+            }
+        } else {
+            logger.warn("unable to rebuild project dependency graph, unexpected graph implementation found: {}", graph.getClass().getName());
+        }
+    }
+
+    private void replaceProjectSorter(final Object obj, final String fieldName, final ProjectSorter newSorter) {
+        try {
+            final Field field = obj.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            field.set(obj, newSorter);
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            logger.error("unable to set rebuilt project dependency graph", e);
+        }
     }
 
     private Map<MavenProject, DependencySet> createDuplicateDependenciesForProjects(final MavenSession session) {
@@ -47,7 +101,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
             if (config.getDependenciesToMatch().isEmpty()) {
                 continue;
             }
-            LOG.debug("config for {}: {}", project.getName(), config);
+            logger.debug("config for {}: {}", project.getName(), config);
 
             final List<Dependency> duplicatedDependencies = new ArrayList<>();
             for (final Dependency existingDependency : project.getDependencies()) {
@@ -60,7 +114,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                 config.getTargetType().ifPresent(cloned::setType);
                 config.getTargetScope().ifPresent(cloned::setScope);
                 cloned.clearManagementKey(); // value is cached, beyond changes via setters
-                LOG.debug("[{}] duplicating dependency {} because of {}", project.getName(), getNameForLog(existingDependency), foundMatcher.get());
+                logger.debug("[{}] duplicating dependency {} because of {}", project.getName(), getNameForLog(existingDependency), foundMatcher.get());
                 duplicatedDependencies.add(cloned);
             }
             if (!duplicatedDependencies.isEmpty()) {
@@ -81,7 +135,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         for (final Entry<MavenProject, DependencySet> entry : newProjectDependencies.entrySet()) {
             final MavenProject project = entry.getKey();
             final DependencySet newDependencies = entry.getValue();
-            LOG.info("[{}] adding duplicated dependencies: {}",
+            logger.info("[{}] adding duplicated dependencies: {}",
                     project.getName(), newDependencies.asSet().stream().map(this::getNameForLog).collect(Collectors.toList()));
             project.getDependencies().addAll(newDependencies.asSet());
         }
