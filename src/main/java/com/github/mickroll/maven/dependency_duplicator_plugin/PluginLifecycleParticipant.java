@@ -97,12 +97,12 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
     private Map<MavenProject, DependencySet> createDuplicateDependenciesForProjects(final MavenSession session) {
         final Map<MavenProject, DependencySet> newProjectDependencies = new LinkedHashMap<>();
         for (final MavenProject project : session.getAllProjects()) {
-            final DuplicatorConfig config = DuplicatorConfig.read(project);
+            final DuplicatorConfig config = DuplicatorConfig.read(project.getProperties());
             if (config.getDependenciesToMatch().isEmpty()) {
                 continue;
             }
             logger.debug("config for {}: {}", project.getName(), config);
-
+            final DependencyCloner dependencyCloner = new DependencyCloner(config);
             final List<Dependency> duplicatedDependencies = new ArrayList<>();
             for (final Dependency existingDependency : project.getDependencies()) {
                 final Optional<DependencyMatcher> foundMatcher = config.findAnyMatcher(existingDependency);
@@ -110,10 +110,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                     continue;
                 }
 
-                final Dependency cloned = existingDependency.clone();
-                config.getTargetType().ifPresent(cloned::setType);
-                config.getTargetScope().ifPresent(cloned::setScope);
-                cloned.clearManagementKey(); // value is cached, beyond changes via setters
+                final Dependency cloned = dependencyCloner.clone(existingDependency);
                 logger.debug("[{}] duplicating dependency {} because of {}", project.getName(), getNameForLog(existingDependency), foundMatcher.get());
                 duplicatedDependencies.add(cloned);
             }

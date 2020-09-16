@@ -10,8 +10,12 @@ import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 
 /**
- * {@link Dependency} has no {@link Object#equals(Object)}-Method. Here is a
- * straight-forward implementation of a {@link Set} of dependencies.
+ * {@link Dependency} has no {@link Object#equals(Object)}-Method.
+ * <p>
+ * This is a straight-forward implementation of a {@link Set} of dependencies.
+ *
+ * @author mickroll
+ * @see Dependency
  */
 public class DependencySet {
 
@@ -31,7 +35,7 @@ public class DependencySet {
         return Collections.unmodifiableSet(dependencies);
     }
 
-    private boolean isDeepEqualTo(final Dependency d1, final Dependency d2) {
+    static boolean isDeepEqualTo(final Dependency d1, final Dependency d2) {
         return Objects.equals(d1.getGroupId(), d2.getGroupId())
                 && Objects.equals(d1.getArtifactId(), d2.getArtifactId())
                 && Objects.equals(d1.getVersion(), d2.getVersion())

@@ -2,12 +2,17 @@ package com.github.mickroll.maven.dependency_duplicator_plugin;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.maven.model.Dependency;
-import org.apache.maven.project.MavenProject;
 
+/**
+ * Plugin configuration.
+ *
+ * @author mickroll
+ */
 public class DuplicatorConfig {
 
     private final static String PROPERTY_SOURCE_DEPENDENCIES = "ddp.sourceDependencies";
@@ -20,7 +25,9 @@ public class DuplicatorConfig {
     private final String targetType;
     private final boolean addDependenciesDownstream;
 
-    public DuplicatorConfig(final List<DependencyMatcher> dependenciesToMatch, final String targetScope, final String targetType,
+    DuplicatorConfig(final List<DependencyMatcher> dependenciesToMatch,
+            final String targetScope,
+            final String targetType,
             final boolean addDependenciesDownstream) {
         this.dependenciesToMatch = dependenciesToMatch;
         this.targetScope = targetScope;
@@ -62,16 +69,25 @@ public class DuplicatorConfig {
         return sb.toString();
     }
 
-    public static DuplicatorConfig read(final MavenProject project) {
-        final String config = project.getProperties().getProperty(PROPERTY_SOURCE_DEPENDENCIES, "");
-        final List<DependencyMatcher> dependenciesToMatch = Stream.of(config.split(",")).map(String::trim)
-                .filter(element -> !element.isEmpty()).map(DependencyMatcher::new).collect(Collectors.toList());
+    /**
+     * Read config properties and construct DuplicatorConfig.
+     *
+     * @param projectProperties properties to read, typically these are the maven project properties
+     * @return read config
+     */
+    public static DuplicatorConfig read(final Properties projectProperties) {
+        final String config = projectProperties.getProperty(PROPERTY_SOURCE_DEPENDENCIES, "");
+        final List<DependencyMatcher> dependenciesToMatch = Stream.of(config.split(","))
+                .map(String::trim)
+                .filter(element -> !element.isEmpty())
+                .map(DependencyMatcher::new)
+                .collect(Collectors.toList());
 
-        final String targetScope = project.getProperties().getProperty(PROPERTY_TARGET_SCOPE);
-        final String targetType = project.getProperties().getProperty(PROPERTY_TARGET_TYPE);
+        final String targetScope = projectProperties.getProperty(PROPERTY_TARGET_SCOPE);
+        final String targetType = projectProperties.getProperty(PROPERTY_TARGET_TYPE);
 
         final boolean addDependenciesDownstream = Boolean
-                .valueOf(project.getProperties().getProperty(PROPERTY_ADD_DEPENDENCIES_DOWNSTREAM, Boolean.TRUE.toString()));
+                .parseBoolean(projectProperties.getProperty(PROPERTY_ADD_DEPENDENCIES_DOWNSTREAM, Boolean.TRUE.toString()));
 
         return new DuplicatorConfig(dependenciesToMatch, targetScope, targetType, addDependenciesDownstream);
     }

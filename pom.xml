@@ -51,8 +51,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <maven-core.version>3.6.3</maven-core.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <plexus-component.version>1.7.1</plexus-component.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <junit-jupiter.version>5.7.0</junit-jupiter.version>
+        <assertj-core.version>3.17.2</assertj-core.version>
+        
         <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
         <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
@@ -73,6 +77,18 @@
             <artifactId>plexus-component-annotations</artifactId>
             <version>${plexus-component.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj-core.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -85,6 +101,10 @@
                     <target>1.8</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.plexus</groupId>
