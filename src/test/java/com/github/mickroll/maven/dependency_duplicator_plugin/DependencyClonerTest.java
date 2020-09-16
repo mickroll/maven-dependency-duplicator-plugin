@@ -11,7 +11,7 @@ class DependencyClonerTest {
 
     @Test
     void testEmptyConfig() {
-        final DependencyCloner underTest = new DependencyCloner(config(null, null));
+        final DependencyCloner underTest = new DependencyCloner(config(null, null, null));
         final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
 
         final Dependency clone = underTest.clone(dependency);
@@ -25,7 +25,7 @@ class DependencyClonerTest {
 
     @Test
     void testScope() {
-        final DependencyCloner underTest = new DependencyCloner(config("newScope", null));
+        final DependencyCloner underTest = new DependencyCloner(config("newScope", null, null));
         final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
 
         final Dependency clone = underTest.clone(dependency);
@@ -39,7 +39,7 @@ class DependencyClonerTest {
 
     @Test
     void testNewType() {
-        final DependencyCloner underTest = new DependencyCloner(config(null, "newType"));
+        final DependencyCloner underTest = new DependencyCloner(config(null, "newType", null));
         final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
 
         final Dependency clone = underTest.clone(dependency);
@@ -51,8 +51,22 @@ class DependencyClonerTest {
         assertThat(clone.getScope()).isEqualTo(dependency.getScope());
     }
 
-    private static DuplicatorConfig config(final String targetScope, final String targetType) {
-        return new DuplicatorConfig(Collections.emptyList(), targetScope, targetType, false);
+    @Test
+    void testNewClassifier() {
+        final DependencyCloner underTest = new DependencyCloner(config(null, null, "newClassifier"));
+        final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
+
+        final Dependency clone = underTest.clone(dependency);
+
+        assertThat(clone.getGroupId()).isEqualTo(dependency.getGroupId());
+        assertThat(clone.getArtifactId()).isEqualTo(dependency.getArtifactId());
+        assertThat(clone.getType()).isEqualTo(dependency.getType());
+        assertThat(clone.getClassifier()).isEqualTo("newClassifier");
+        assertThat(clone.getScope()).isEqualTo(dependency.getScope());
+    }
+
+    private static DuplicatorConfig config(final String targetScope, final String targetType, final String targetClassifier) {
+        return new DuplicatorConfig(Collections.emptyList(), targetScope, targetType, targetClassifier, false);
     }
 
     private static Dependency dep(final String groupId, final String artifactId, final String type, final String classifier, final String scope) {

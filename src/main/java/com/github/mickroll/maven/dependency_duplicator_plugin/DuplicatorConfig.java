@@ -18,20 +18,24 @@ public class DuplicatorConfig {
     private final static String PROPERTY_SOURCE_DEPENDENCIES = "ddp.sourceDependencies";
     private final static String PROPERTY_TARGET_SCOPE = "ddp.targetScope";
     private final static String PROPERTY_TARGET_TYPE = "ddp.targetType";
+    private final static String PROPERTY_TARGET_CLASSIFIER = "ddp.targetClassifier";
     private final static String PROPERTY_ADD_DEPENDENCIES_DOWNSTREAM = "ddp.addDependenciesDownstream";
 
     private final List<DependencyMatcher> dependenciesToMatch;
     private final String targetScope;
     private final String targetType;
+    private final String targetClassifier;
     private final boolean addDependenciesDownstream;
 
     DuplicatorConfig(final List<DependencyMatcher> dependenciesToMatch,
             final String targetScope,
             final String targetType,
+            final String targetClassifier,
             final boolean addDependenciesDownstream) {
         this.dependenciesToMatch = dependenciesToMatch;
         this.targetScope = targetScope;
         this.targetType = targetType;
+        this.targetClassifier = targetClassifier;
         this.addDependenciesDownstream = addDependenciesDownstream;
     }
 
@@ -51,6 +55,10 @@ public class DuplicatorConfig {
         return Optional.ofNullable(targetType);
     }
 
+    public Optional<String> getTargetClassifier() {
+        return Optional.ofNullable(targetClassifier);
+    }
+
     public boolean isAddDependenciesDownstream() {
         return addDependenciesDownstream;
     }
@@ -64,6 +72,9 @@ public class DuplicatorConfig {
         }
         if (targetType != null) {
             sb.append(", targetType=").append(targetType);
+        }
+        if (targetClassifier != null) {
+            sb.append(", targetClassifier=").append(targetClassifier);
         }
         sb.append(", addDependenciesDownstream=").append(addDependenciesDownstream);
         return sb.toString();
@@ -85,10 +96,11 @@ public class DuplicatorConfig {
 
         final String targetScope = projectProperties.getProperty(PROPERTY_TARGET_SCOPE);
         final String targetType = projectProperties.getProperty(PROPERTY_TARGET_TYPE);
+        final String targetClassifier = projectProperties.getProperty(PROPERTY_TARGET_CLASSIFIER);
 
         final boolean addDependenciesDownstream = Boolean
                 .parseBoolean(projectProperties.getProperty(PROPERTY_ADD_DEPENDENCIES_DOWNSTREAM, Boolean.TRUE.toString()));
 
-        return new DuplicatorConfig(dependenciesToMatch, targetScope, targetType, addDependenciesDownstream);
+        return new DuplicatorConfig(dependenciesToMatch, targetScope, targetType, targetClassifier, addDependenciesDownstream);
     }
 }

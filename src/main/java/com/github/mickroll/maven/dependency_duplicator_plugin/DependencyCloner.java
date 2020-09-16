@@ -18,8 +18,9 @@ public class DependencyCloner {
 
     public Dependency clone(final Dependency source) {
         final Dependency clone = source.clone();
-        config.getTargetType().ifPresent(clone::setType);
+        config.getTargetClassifier().ifPresent(clone::setClassifier);
         config.getTargetScope().ifPresent(clone::setScope);
+        config.getTargetType().ifPresent(clone::setType);
         clone.clearManagementKey(); // value is cached, beyond changes via setters
         return clone;
     }

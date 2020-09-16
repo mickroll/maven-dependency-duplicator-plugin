@@ -35,6 +35,7 @@ Configure this plugin via properties, for example in the root pom of your multi 
 | property | default | description |
 | ---      | ---     | ---         |
 | `ddp.sourceDependencies` | - | dependencies to duplicate, as a comma separated list in the form: `groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier]` Each dependency definition is treated as a regular expression, being matched against each existing dependency. |
+| `ddp.targetClassifier`  | same as original | defines the new `classifier` of the duplicated dependency |
 | `ddp.targetScope` | same as original | defines the new `scope` of the duplicated dependency |
 | `ddp.targetType`  | same as original | defines the new `type` of the duplicated dependency |
 | `ddp.addDependenciesDownstream` | `true` | Add duplicated dependencies also to downstream projects of the project they were found in. A downstream project is a project that directly or indirectly depends on the given project. |

@@ -41,6 +41,16 @@ class DuplicatorConfigTest {
     }
 
     @Test
+    void testTargetClassifier() {
+        final Properties properties = new Properties();
+        properties.setProperty("ddp.targetClassifier", "testClassifier");
+
+        final DuplicatorConfig config = DuplicatorConfig.read(properties);
+
+        assertThat(config.getTargetClassifier()).hasValue("testClassifier");
+    }
+
+    @Test
     void testTargetScope() {
         final Properties properties = new Properties();
         properties.setProperty("ddp.targetScope", "testScope");
