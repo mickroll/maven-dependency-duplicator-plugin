@@ -22,7 +22,7 @@
         <ddp.targetScope>test</ddp.targetScope>
 
         <!-- the property used in the extension will be replaced during filtering. -->
-        <ddpVersion>0.2.3</ddpVersion>
+        <ddpVersion>0.2.4</ddpVersion>
 
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
 

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.github.madprogger</groupId>
     <artifactId>maven-dependency-duplicator-plugin</artifactId>
-    <version>0.2.4</version>
+    <version>0.2.5-SNAPSHOT</version>
 
     <name>dependency duplicator build plugin</name>
     <description>filtered dependency duplicator with configurable changes</description>
@@ -65,7 +65,7 @@
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         
-        <ddpVersion>0.2.3</ddpVersion>
+        <ddpVersion>0.2.4</ddpVersion>
     </properties>
 
     <dependencies>
