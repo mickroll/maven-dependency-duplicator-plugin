@@ -24,9 +24,9 @@ Add the plugin to the maven build by registering it as build extension as follow
         </extensions>
     </build>
 
-Now it is run in any build in the project, thus being able to modify the dependency tree.
+Now it is run in any build in the project, thus being able to modify the dependency tree. The plugin itself is provided via maven central: https://repo1.maven.org/maven2/com/github/madprogger/maven-dependency-duplicator-plugin/
 
-Hint: any following build extension will also see the modified dependency tree. So if you use multiple extensions, be sure to configure the maven-dependency-duplicator-plugin as the first extension.
+Hint: any subsequent build extension will also see the modified dependency tree. So if you use multiple extensions, be sure to configure the maven-dependency-duplicator-plugin as the first extension.
 
 ### Configuration
   
