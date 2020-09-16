@@ -64,6 +64,8 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
         <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+        
+        <ddpVersion>0.2.3</ddpVersion>
     </properties>
 
     <dependencies>
@@ -92,6 +94,13 @@
     </dependencies>
 
     <build>
+        <testResources>
+            <testResource>
+                <!-- pom.xml files use ${ddpVersion} and need to be filtered -->
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
