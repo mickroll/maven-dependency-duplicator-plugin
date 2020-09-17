@@ -28,4 +28,11 @@ class IntegrationTest {
         assertThat(stdout).contains("found class: org.example.submod1.TestImplementation");
         assertThat(stdout).contains("found class: org.example.submod2.Submod2Implementation"); // this is found because of the automatically added dependency:
     }
+
+    @Test
+    void testExtraDependencies() throws Exception {
+        final List<String> stdout = new MavenWrapper("extra-dependencies").run("install", 0);
+
+        assertThat(stdout).contains("USED COMMONS-LANG3!");
+    }
 }
