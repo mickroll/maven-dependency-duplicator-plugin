@@ -10,7 +10,7 @@ class DependencyDuplicationTest {
     private static final Dependency EXAMPLE_SOMEARTIFACT;
     static {
         final Dependency dependency = new Dependency();
-        dependency.setGroupId("com.example");
+        dependency.setGroupId("org.example");
         dependency.setArtifactId("someartifact");
         dependency.setType("jar");
         EXAMPLE_SOMEARTIFACT = dependency;
@@ -19,7 +19,7 @@ class DependencyDuplicationTest {
     private static final Dependency EXAMPLE_OTHERARTIFACT;
     static {
         final Dependency dependency = new Dependency();
-        dependency.setGroupId("com.example");
+        dependency.setGroupId("org.example");
         dependency.setArtifactId("otherartifact");
         dependency.setType("jar");
         EXAMPLE_OTHERARTIFACT = dependency;
@@ -28,7 +28,7 @@ class DependencyDuplicationTest {
     private static final Dependency EXAMPLE_DEPENDENCY_WITH_CLASSIFIER;
     static {
         final Dependency dependency = new Dependency();
-        dependency.setGroupId("com.example");
+        dependency.setGroupId("org.example");
         dependency.setArtifactId("someartifact");
         dependency.setType("jar");
         dependency.setClassifier("testclassifier");
@@ -40,37 +40,37 @@ class DependencyDuplicationTest {
 
     @Test
     void testGroupOnly() {
-        assertThat(dupl("com.example").matches(EXAMPLE_SOMEARTIFACT)).isFalse();
-        assertThat(dupl("com.example").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
+        assertThat(dupl("org.example").matches(EXAMPLE_SOMEARTIFACT)).isFalse();
+        assertThat(dupl("org.example").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
     }
 
     @Test
     void testGroupOnlyWithMatchAny() {
-        assertThat(dupl("com.example:.*").matches(EXAMPLE_SOMEARTIFACT)).isTrue();
-        assertThat(dupl("com.example:.*").matches(EXAMPLE_OTHERARTIFACT)).isTrue();
+        assertThat(dupl("org.example:.*").matches(EXAMPLE_SOMEARTIFACT)).isTrue();
+        assertThat(dupl("org.example:.*").matches(EXAMPLE_OTHERARTIFACT)).isTrue();
     }
 
     @Test
     void testGroupArtifactOnly() {
-        assertThat(dupl("com.example:someartifact").matches(EXAMPLE_SOMEARTIFACT)).isFalse();
-        assertThat(dupl("com.example:someartifact").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
+        assertThat(dupl("org.example:someartifact").matches(EXAMPLE_SOMEARTIFACT)).isFalse();
+        assertThat(dupl("org.example:someartifact").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
     }
 
     @Test
     void testGroupArtifactOnlyWithMatchAny() {
-        assertThat(dupl("com.example:someartifact:.*").matches(EXAMPLE_SOMEARTIFACT)).isTrue();
-        assertThat(dupl("com.example:someartifact:.*").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
+        assertThat(dupl("org.example:someartifact:.*").matches(EXAMPLE_SOMEARTIFACT)).isTrue();
+        assertThat(dupl("org.example:someartifact:.*").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
     }
 
     @Test
     void testGroupArtifactType() {
-        assertThat(dupl("com.example:someartifact:jar").matches(EXAMPLE_SOMEARTIFACT)).isTrue();
-        assertThat(dupl("com.example:someartifact:jar").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
+        assertThat(dupl("org.example:someartifact:jar").matches(EXAMPLE_SOMEARTIFACT)).isTrue();
+        assertThat(dupl("org.example:someartifact:jar").matches(EXAMPLE_OTHERARTIFACT)).isFalse();
     }
 
     @Test
     void testTwoDependencies() {
-        final DependencyDuplication config = dupl("com.example:someartifact:jar, com.example:otherartifact:jar");
+        final DependencyDuplication config = dupl("org.example:someartifact:jar, org.example:otherartifact:jar");
 
         assertThat(config.matches(EXAMPLE_SOMEARTIFACT)).isTrue();
         assertThat(config.matches(EXAMPLE_OTHERARTIFACT)).isTrue();
@@ -81,37 +81,37 @@ class DependencyDuplicationTest {
 
     @Test
     void testClassifier_GroupOnly() {
-        assertThat(dupl("com.example").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isFalse();
+        assertThat(dupl("org.example").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isFalse();
     }
 
     @Test
     void testClassifier_GroupOnlyWithMatchAny() {
-        assertThat(dupl("com.example:.*").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
+        assertThat(dupl("org.example:.*").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
     }
 
     @Test
     void testClassifier_GroupArtifactOnly() {
-        assertThat(dupl("com.example:someartifact").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isFalse();
+        assertThat(dupl("org.example:someartifact").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isFalse();
     }
 
     @Test
     void testClassifier_GroupArtifactOnlyWithMatchAny() {
-        assertThat(dupl("com.example:someartifact:.*").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
+        assertThat(dupl("org.example:someartifact:.*").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
     }
 
     @Test
     void testClassifier_GroupArtifactTypeOnly() {
-        assertThat(dupl("com.example:someartifact:jar").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isFalse();
+        assertThat(dupl("org.example:someartifact:jar").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isFalse();
     }
 
     @Test
     void testClassifier_GroupArtifactTypeOnlyWithMatchAny() {
-        assertThat(dupl("com.example:someartifact:jar:.*").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
+        assertThat(dupl("org.example:someartifact:jar:.*").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
     }
 
     @Test
     void testClassifier_GroupArtifactTypeClassifier() {
-        assertThat(dupl("com.example:someartifact:jar:testclassifier").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
+        assertThat(dupl("org.example:someartifact:jar:testclassifier").matches(EXAMPLE_DEPENDENCY_WITH_CLASSIFIER)).isTrue();
     }
 
     // duplication tests
@@ -119,7 +119,7 @@ class DependencyDuplicationTest {
     @Test
     void testEmptyConfig() {
         final DependencyDuplication underTest = dupl(null, null, null);
-        final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
+        final Dependency dependency = dep("org.example", "someartifact", "jar", null, "compile");
 
         final Dependency clone = underTest.doDuplicate(dependency);
 
@@ -133,7 +133,7 @@ class DependencyDuplicationTest {
     @Test
     void testScope() {
         final DependencyDuplication underTest = dupl("newScope", null, null);
-        final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
+        final Dependency dependency = dep("org.example", "someartifact", "jar", null, "compile");
 
         final Dependency clone = underTest.doDuplicate(dependency);
 
@@ -147,7 +147,7 @@ class DependencyDuplicationTest {
     @Test
     void testNewType() {
         final DependencyDuplication underTest = dupl(null, "newType", null);
-        final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
+        final Dependency dependency = dep("org.example", "someartifact", "jar", null, "compile");
 
         final Dependency clone = underTest.doDuplicate(dependency);
 
@@ -161,7 +161,7 @@ class DependencyDuplicationTest {
     @Test
     void testNewClassifier() {
         final DependencyDuplication underTest = dupl(null, null, "newClassifier");
-        final Dependency dependency = dep("com.example", "someartifact", "jar", null, "compile");
+        final Dependency dependency = dep("org.example", "someartifact", "jar", null, "compile");
 
         final Dependency clone = underTest.doDuplicate(dependency);
 

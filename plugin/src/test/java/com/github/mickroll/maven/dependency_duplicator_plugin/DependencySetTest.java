@@ -17,56 +17,56 @@ class DependencySetTest {
 
     @Test
     void testGATC_Same() {
-        final Dependency d1 = dep("com.example", "someartifact", "jar", "testclassifier");
-        final Dependency d2 = dep("com.example", "someartifact", "jar", "testclassifier");
+        final Dependency d1 = dep("org.example", "someartifact", "jar", "testclassifier");
+        final Dependency d2 = dep("org.example", "someartifact", "jar", "testclassifier");
 
         assertThat(DependencySet.isDeepEqualTo(d1, d2)).isTrue();
     }
 
     @Test
     void testGATC_DiffG() {
-        final Dependency d1 = dep("com.example", "someartifact", "jar", "testclassifier");
-        final Dependency d2 = dep("com.example2", "someartifact", "jar", "testclassifier");
+        final Dependency d1 = dep("org.example", "someartifact", "jar", "testclassifier");
+        final Dependency d2 = dep("org.example2", "someartifact", "jar", "testclassifier");
 
         assertThat(DependencySet.isDeepEqualTo(d1, d2)).isFalse();
     }
 
     @Test
     void testGATC_DiffA() {
-        final Dependency d1 = dep("com.example", "someartifact", "jar", "testclassifier");
-        final Dependency d2 = dep("com.example", "someartifact2", "jar", "testclassifier");
+        final Dependency d1 = dep("org.example", "someartifact", "jar", "testclassifier");
+        final Dependency d2 = dep("org.example", "someartifact2", "jar", "testclassifier");
 
         assertThat(DependencySet.isDeepEqualTo(d1, d2)).isFalse();
     }
 
     @Test
     void testGATC_DiffT() {
-        final Dependency d1 = dep("com.example", "someartifact", "jar", "testclassifier");
-        final Dependency d2 = dep("com.example", "someartifact", "war", "testclassifier");
+        final Dependency d1 = dep("org.example", "someartifact", "jar", "testclassifier");
+        final Dependency d2 = dep("org.example", "someartifact", "war", "testclassifier");
 
         assertThat(DependencySet.isDeepEqualTo(d1, d2)).isFalse();
     }
 
     @Test
     void testGATC_DiffC() {
-        final Dependency d1 = dep("com.example", "someartifact", "jar", "testclassifier");
-        final Dependency d2 = dep("com.example", "someartifact", "jar", "testclassifier2");
+        final Dependency d1 = dep("org.example", "someartifact", "jar", "testclassifier");
+        final Dependency d2 = dep("org.example", "someartifact", "jar", "testclassifier2");
 
         assertThat(DependencySet.isDeepEqualTo(d1, d2)).isFalse();
     }
 
     @Test
     void testGATC_DiffNoC() {
-        final Dependency d1 = dep("com.example", "someartifact", "jar", "testclassifier");
-        final Dependency d2 = dep("com.example", "someartifact", "jar", null);
+        final Dependency d1 = dep("org.example", "someartifact", "jar", "testclassifier");
+        final Dependency d2 = dep("org.example", "someartifact", "jar", null);
 
         assertThat(DependencySet.isDeepEqualTo(d1, d2)).isFalse();
     }
 
     @Test
     void testGAT_Same() {
-        final Dependency d1 = dep("com.example", "someartifact", "jar", null);
-        final Dependency d2 = dep("com.example", "someartifact", "jar", null);
+        final Dependency d1 = dep("org.example", "someartifact", "jar", null);
+        final Dependency d2 = dep("org.example", "someartifact", "jar", null);
 
         assertThat(DependencySet.isDeepEqualTo(d1, d2)).isTrue();
     }

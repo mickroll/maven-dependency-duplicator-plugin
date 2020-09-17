@@ -65,7 +65,7 @@ If the following configuration is defined in the root pom.xml of a multi module 
     <configuration>
         <duplications>
             <duplication>
-                <source>com.example:project-1:jar, com.example:sub-.*:jar</source>
+                <source>org.example:project-1:jar, org.example:sub-.*:jar</source>
                 <targetScope>test</targetScope>
                 <targetType>test-jar</targetType>
             </duplication>
@@ -75,12 +75,12 @@ If the following configuration is defined in the root pom.xml of a multi module 
 Now if a module in this maven project has the following dependencies:
 
     <dependency>
-        <groupId>com.example</groupId>
+        <groupId>org.example</groupId>
         <artifactId>project-1</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-        <groupId>com.example</groupId>
+        <groupId>org.example</groupId>
         <artifactId>sub-five</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </dependency>
@@ -88,24 +88,24 @@ Now if a module in this maven project has the following dependencies:
 Then the maven build of this module will run, as if the following dependencies were present in the pom.xml:
     
     <dependency>
-        <groupId>com.example</groupId>
+        <groupId>org.example</groupId>
         <artifactId>project-1</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-        <groupId>com.example</groupId>
+        <groupId>org.example</groupId>
         <artifactId>sub-five</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </dependency>
     <dependency>
-        <groupId>com.example</groupId>
+        <groupId>org.example</groupId>
         <artifactId>project-1</artifactId>
         <version>0.1.0-SNAPSHOT</version>
         <type>test-jar</type>
         <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>com.example</groupId>
+        <groupId>org.example</groupId>
         <artifactId>sub-five</artifactId>
         <version>0.1.0-SNAPSHOT</version>
         <type>test-jar</type>
