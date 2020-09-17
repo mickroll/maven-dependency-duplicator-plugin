@@ -17,7 +17,7 @@
     </modules>
 
     <properties>
-        <ddpVersion>0.3.2</ddpVersion>
+        <ddpVersion>0.3.3-SNAPSHOT</ddpVersion>
 
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
