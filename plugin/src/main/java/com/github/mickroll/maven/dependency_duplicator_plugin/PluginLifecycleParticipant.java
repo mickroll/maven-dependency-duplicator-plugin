@@ -63,10 +63,8 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         logger.info("duplicating dependencies to projects in reactor");
 
         if (session.getProjectDependencyGraph() == null) {
-            // may happen, if module graph is not valid
-            logger.warn("Execution of dependency-duplicator-plugin is not supported in this environment: "
-                    + "Current MavenSession does not provide a ProjectDependencyGraph.");
-            return;
+            logger.warn("Current MavenSession does not provide a ProjectDependencyGraph. Building prior to use.");
+            rebuildDependencyGraph(session);
         }
 
         final Map<MavenProject, DependencySet> newProjectDependencies = createDuplicateDependenciesForProjects(session);
