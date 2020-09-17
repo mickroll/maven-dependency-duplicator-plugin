@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 
 public class MavenWrapper {
-    private static final String BASE_DIR = "target/test-classes/it/";
+    private static final String BASE_DIR = "target/maven-projects/";
     private static final String MVN_COMMAND;
     static {
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
