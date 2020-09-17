@@ -2,6 +2,7 @@ package com.github.mickroll.maven.dependency_duplicator_plugin;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,9 +192,15 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                 }
                 final DependencyDuplication dependencyDuplication = foundDuplicationHolder.get();
 
-                final Dependency cloned = dependencyDuplication.doDuplicate(existingDependency);
+                final List<Dependency> newDependencies = new ArrayList<>();
+                newDependencies.add(dependencyDuplication.doDuplicate(existingDependency));
                 logger.debug("[{}] duplicating dependency {} because of {}",
                         project.getName(), getNameForLog(existingDependency), dependencyDuplication.getSource());
+
+                if (!dependencyDuplication.getExtraDependencies().isEmpty()) {
+                    logger.debug("[{}] adding extra dependencies {}", getNamesForLog(dependencyDuplication.getExtraDependencies()));
+                    newDependencies.addAll(dependencyDuplication.getExtraDependencies());
+                }
 
                 final List<MavenProject> targetProjectsForNewDependencies = new ArrayList<>();
                 targetProjectsForNewDependencies.add(project);
@@ -201,7 +208,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                     targetProjectsForNewDependencies.addAll(session.getProjectDependencyGraph().getDownstreamProjects(project, true));
                 }
                 for (final MavenProject targetProject : targetProjectsForNewDependencies) {
-                    newProjectDependencies.computeIfAbsent(targetProject, p -> new DependencySet()).add(cloned);
+                    newProjectDependencies.computeIfAbsent(targetProject, p -> new DependencySet()).addAll(newDependencies);
                 }
             }
         }
@@ -212,13 +219,16 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         for (final Entry<MavenProject, DependencySet> entry : newProjectDependencies.entrySet()) {
             final MavenProject project = entry.getKey();
             final DependencySet newDependencies = entry.getValue();
-            logger.info("[{}] adding duplicated dependencies: {}",
-                    project.getName(), newDependencies.asSet().stream().map(this::getNameForLog).collect(Collectors.toList()));
+            logger.info("[{}] adding dependencies: {}", project.getName(), getNamesForLog(newDependencies.asSet()));
             project.getDependencies().addAll(newDependencies.asSet());
         }
     }
 
     private String getNameForLog(final Dependency dependency) {
         return dependency.getManagementKey() + ":" + dependency.getScope();
+    }
+
+    private Collection<String> getNamesForLog(final Collection<Dependency> dependencies) {
+        return dependencies.stream().map(this::getNameForLog).collect(Collectors.toList());
     }
 }

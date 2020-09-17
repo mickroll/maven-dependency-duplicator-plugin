@@ -1,5 +1,7 @@
 package com.github.mickroll.maven.dependency_duplicator_plugin.config;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -51,6 +53,12 @@ public class DependencyDuplication {
     boolean addDownstream;
 
     /**
+     * Dependencies to add, if {@link #source} did match in a project.
+     */
+    @Parameter
+    List<Dependency> extraDependencies;
+
+    /**
      * Determines, if given dependency is matched by the configured {@link #source} regExes.
      *
      * @param dependency dependency
@@ -72,6 +80,10 @@ public class DependencyDuplication {
         getTargetType().ifPresent(clone::setType);
         clone.clearManagementKey(); // value is cached, beyond changes via setters
         return clone;
+    }
+
+    public List<Dependency> getExtraDependencies() {
+        return extraDependencies == null ? Collections.emptyList() : extraDependencies;
     }
 
     public String getSource() {
