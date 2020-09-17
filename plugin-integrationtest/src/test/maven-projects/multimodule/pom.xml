@@ -17,12 +17,7 @@
     </modules>
 
     <properties>
-        <ddp.sourceDependencies>org.example.multimodule:submod1:jar</ddp.sourceDependencies>
-        <ddp.targetType>test-jar</ddp.targetType>
-        <ddp.targetScope>test</ddp.targetScope>
-
-        <!-- the property used in the extension will be replaced during filtering. -->
-        <ddpVersion>0.2.4</ddpVersion>
+        <ddpVersion>0.3.0-SNAPSHOT</ddpVersion>
 
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
@@ -41,14 +36,23 @@
         </dependency>
     </dependencies>    
     <build>
-        <extensions>
-            <extension>
+        <plugins>
+            <plugin>
                 <groupId>com.github.madprogger</groupId>
                 <artifactId>maven-dependency-duplicator-plugin</artifactId>
                 <version>${ddpVersion}</version>
-            </extension>
-        </extensions>
-        <plugins>
+                <extensions>true</extensions>
+                <configuration>
+                    <duplications>
+                        <duplication>
+                            <source>org.example.multimodule:submod1:jar</source>
+                            <targetScope>test</targetScope>
+                            <targetType>test-jar</targetType>
+                        </duplication>
+                    </duplications>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>

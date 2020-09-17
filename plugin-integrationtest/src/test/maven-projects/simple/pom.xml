@@ -12,26 +12,15 @@
     <name>simple</name>
 
     <properties>
-        <!-- the property used in the extension will be replaced during filtering. -->
-        <ddpVersion>0.2.5-SNAPSHOT</ddpVersion>
+        <ddpVersion>0.3.0-SNAPSHOT</ddpVersion>
     </properties>
     <build>
-        <extensions>
-            <extension>
-                <groupId>com.github.madprogger</groupId>
-                <artifactId>maven-dependency-duplicator-plugin</artifactId>
-                <version>${ddpVersion}</version>
-            </extension>
-        </extensions>
         <plugins>
             <plugin>
                 <groupId>com.github.madprogger</groupId>
                 <artifactId>maven-dependency-duplicator-plugin</artifactId>
                 <version>${ddpVersion}</version>
                 <extensions>true</extensions>
-                <configuration>
-                    <blubb>testing</blubb>    
-                </configuration>
             </plugin>
         </plugins>
     </build>

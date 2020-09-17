@@ -14,14 +14,15 @@ Modifying your maven build to include the maven-dependency-duplicator-plugin is 
 Add the plugin to the maven build by registering it as build extension as follows:
 
     <build>
-        <extensions>
-            <extension>
+        <plugins>
+            <plugin>
                 <groupId>com.github.madprogger</groupId>
                 <artifactId>maven-dependency-duplicator-plugin</artifactId>
                 <!-- hint: don't forget to define the following property with current plugin version -->
                 <version>${maven-dependency-duplicator-plugin.version}</version>
-            </extension>
-        </extensions>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
     </build>
 
 Now it is run in any build in the project, thus being able to modify the dependency tree. The plugin itself is provided via maven central: https://repo1.maven.org/maven2/com/github/madprogger/maven-dependency-duplicator-plugin/
@@ -30,28 +31,46 @@ Hint: any subsequent build extension will also see the modified dependency tree.
 
 ### Configuration
   
-Configure this plugin via properties, for example in the root pom of your multi module maven project.
+Configure this plugin like any other maven plugin, for example in the root pom of your multi module maven project, as follows:
+
+    <configuration>
+        <duplications>
+            <duplication>
+                <source>...</source>
+                <targetScope>...</targetScope>
+                <targetType>...</targetType>
+                <targetClassifier>...</targetClassifier>
+                <addDownstream>...</addDownstream>
+            </duplication>
+            [...]
+        </duplications>
+    </configuration>
 
 | property | default | description |
 | ---      | ---     | ---         |
-| `ddp.sourceDependencies` | - | dependencies to duplicate, as a comma separated list in the form: `groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier]` Each dependency definition is treated as a regular expression, being matched against each existing dependency. |
-| `ddp.targetClassifier`  | same as original | defines the new `classifier` of the duplicated dependency |
-| `ddp.targetScope` | same as original | defines the new `scope` of the duplicated dependency |
-| `ddp.targetType`  | same as original | defines the new `type` of the duplicated dependency |
-| `ddp.addDependenciesDownstream` | `true` | Add duplicated dependencies also to downstream projects of the project they were found in. A downstream project is a project that directly or indirectly depends on the given project. |
+| `source` | - | dependencies to duplicate, as a comma separated list in the form: `groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier]` Each dependency definition is treated as a regular expression, being matched against each existing dependency. |
+| `targetClassifier`  | same as original | defines the new `classifier` of the duplicated dependency |
+| `targetScope` | same as original | defines the new `scope` of the duplicated dependency |
+| `targetType`  | same as original | defines the new `type` of the duplicated dependency |
+| `addDownstream` | `true` | Add duplicated dependencies also to downstream projects of the project they were found in. A downstream project is a project that directly or indirectly depends on the given project. |
 
-The property configuration is read separately for each project, so different configurations may be used within the same build.
+Each dependency is treated independently, the first matching `duplication` wins.
+
+The configuration is read separately for each project, so different configurations may be used within the same build.
  
 ## Example
 
-If the following properties are defined in the root pom.xml of a multi module maven project that uses the maven-dependency-duplicator-plugin build extension:
+If the following configuration is defined in the root pom.xml of a multi module maven project that uses the maven-dependency-duplicator-plugin build extension:
 
-    <properties>
-        <ddp.sourceDependencies>com.example:project-1:jar, com.example:sub-.*:jar</ddp.sourceDependencies>
-        <ddp.targetType>test-jar</ddp.targetType>
-        <ddp.targetScope>test</ddp.targetScope>
-    </properties> 
-
+    <configuration>
+        <duplications>
+            <duplication>
+                <source>com.example:project-1:jar, com.example:sub-.*:jar</source>
+                <targetScope>test</targetScope>
+                <targetType>test-jar</targetType>
+            </duplication>
+        </duplications>
+    </configuration>
   
 Now if a module in this maven project has the following dependencies:
 
