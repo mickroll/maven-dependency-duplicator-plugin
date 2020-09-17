@@ -31,8 +31,8 @@ import org.apache.maven.project.ProjectSorter;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.component.annotations.Requirement;
+import org.codehaus.plexus.component.configurator.BasicComponentConfigurator;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
-import org.codehaus.plexus.component.configurator.ComponentConfigurator;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
 import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
@@ -53,9 +53,6 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
     @Requirement
     private MojoDescriptorCreator mojoDescriptorCreator;
-
-    @Requirement
-    private ComponentConfigurator componentConfigurator;
 
     // needs maven 3.7.0, see https://github.com/apache/maven/pull/368
     // @Requirement(hint = GraphBuilder.HINT)
@@ -111,7 +108,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
             final PlexusConfiguration config = getConfig(plugin.getConfiguration());
 
             final PluginMojo mojo = new PluginMojo();
-            componentConfigurator.configureComponent(mojo, config, container.getContainerRealm());
+            new BasicComponentConfigurator().configureComponent(mojo, config, container.getContainerRealm());
 
             return Optional.of(mojo);
         } catch (PluginNotFoundException | PluginResolutionException | PluginDescriptorParsingException | MojoNotFoundException

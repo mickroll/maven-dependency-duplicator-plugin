@@ -1,5 +1,6 @@
 package com.github.mickroll.maven.dependency_duplicator_plugin.config;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,8 +31,12 @@ public class PluginMojo extends AbstractMojo {
         throw new MojoExecutionException("This mojo should not be executed. It may only be used for configuration.");
     }
 
+    public List<DependencyDuplication> getDuplications() {
+        return duplications == null ? Collections.emptyList() : duplications;
+    }
+
     public boolean hasDefinedDuplications() {
-        return !duplications.isEmpty();
+        return !getDuplications().isEmpty();
     }
 
     /**
@@ -41,11 +46,11 @@ public class PluginMojo extends AbstractMojo {
      * @return first found duplication, if any
      */
     public Optional<DependencyDuplication> findFirstDuplicationConfig(final Dependency dependency) {
-        return duplications.stream().filter(matcher -> matcher.matches(dependency)).findFirst();
+        return getDuplications().stream().filter(matcher -> matcher.matches(dependency)).findFirst();
     }
 
     @Override
     public String toString() {
-        return duplications.toString();
+        return getDuplications().toString();
     }
 }
