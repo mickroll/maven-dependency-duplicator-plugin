@@ -66,7 +66,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
         if (session.getProjectDependencyGraph() == null) {
             // may happen, if module graph is not valid
-            logger.warn("Execution of maven-dependency-duplicator-plugin is not supported in this environment: "
+            logger.warn("Execution of dependency-duplicator-plugin is not supported in this environment: "
                     + "Current MavenSession does not provide a ProjectDependencyGraph.");
             return;
         }
@@ -85,7 +85,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         MavenProject projectCursor = project;
         Plugin plugin = null;
         while (projectCursor != null) {
-            plugin = projectCursor.getPlugin("com.github.madprogger:maven-dependency-duplicator-plugin");
+            plugin = projectCursor.getPlugin(PluginMojo.PLUGIN_KEY);
             if (plugin != null) {
                 // break to keep correct projectCursor
                 break;
@@ -103,7 +103,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         }
 
         try {
-            final MojoDescriptor descriptor = mojoDescriptorCreator.getMojoDescriptor(plugin.getKey() + ":" + PluginMojo.GOAL, session, projectCursor);
+            final MojoDescriptor descriptor = mojoDescriptorCreator.getMojoDescriptor(PluginMojo.PLUGIN_KEY + ":" + PluginMojo.GOAL, session, projectCursor);
             logger.debug("descriptor created " + descriptor);
 
             descriptor.setConfiguration(getConfig(plugin.getConfiguration()));

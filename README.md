@@ -1,13 +1,13 @@
-![Java CI with Maven](https://github.com/mickroll/maven-dependency-duplicator-plugin/workflows/Java%20CI%20with%20Maven/badge.svg)
-![Maven Package](https://github.com/mickroll/maven-dependency-duplicator-plugin/workflows/Maven%20Package/badge.svg)
+![Java CI with Maven](https://github.com/mickroll/dependency-duplicator-plugin/workflows/Java%20CI%20with%20Maven/badge.svg)
+![Maven Package](https://github.com/mickroll/dependency-duplicator-plugin/workflows/Maven%20Package/badge.svg)
 
-# maven-dependency-duplicator-plugin
+# dependency-duplicator-plugin
 
 This Maven plugin duplicates existing dependencies, applying configured changes. Each project is treated separate, at the beginning of the reactor build.
 
 ## Usage
 
-Modifying your maven build to include the maven-dependency-duplicator-plugin is done in two steps, by registering it as a build extension and adding configuration properties.
+Modifying your maven build to include the dependency-duplicator-plugin is done in two steps, by registering it as a build extension and adding configuration properties.
 
 ### Build extension
 
@@ -17,17 +17,17 @@ Add the plugin to the maven build by registering it as build extension as follow
         <plugins>
             <plugin>
                 <groupId>com.github.madprogger</groupId>
-                <artifactId>maven-dependency-duplicator-plugin</artifactId>
+                <artifactId>dependency-duplicator-plugin</artifactId>
                 <!-- hint: don't forget to define the following property with current plugin version -->
-                <version>${maven-dependency-duplicator-plugin.version}</version>
+                <version>${dependency-duplicator-plugin.version}</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
     </build>
 
-Now it is run in any build in the project, thus being able to modify the dependency tree. The plugin itself is provided via maven central: https://repo1.maven.org/maven2/com/github/madprogger/maven-dependency-duplicator-plugin/
+Now it is run in any build in the project, thus being able to modify the dependency tree. The plugin itself is provided via maven central: https://repo1.maven.org/maven2/com/github/madprogger/dependency-duplicator-plugin/
 
-Hint: any subsequent build extension will also see the modified dependency tree. So if you use multiple extensions, be sure to configure the maven-dependency-duplicator-plugin as the first extension.
+Hint: any subsequent build extension will also see the modified dependency tree. So if you use multiple extensions, be sure to configure the dependency-duplicator-plugin as the first extension.
 
 ### Configuration
   
@@ -60,7 +60,7 @@ The configuration is read separately for each project, so different configuratio
  
 ## Example
 
-If the following configuration is defined in the root pom.xml of a multi module maven project that uses the maven-dependency-duplicator-plugin build extension:
+If the following configuration is defined in the root pom.xml of a multi module maven project that uses the dependency-duplicator-plugin build extension:
 
     <configuration>
         <duplications>

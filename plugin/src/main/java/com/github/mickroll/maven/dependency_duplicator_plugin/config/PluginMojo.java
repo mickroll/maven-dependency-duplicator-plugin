@@ -15,6 +15,8 @@ public class PluginMojo extends AbstractMojo {
 
     public static final String GOAL = "duplicate-dependencies";
 
+    public static final String PLUGIN_KEY = "com.github.madprogger:dependency-duplicator-plugin";
+
     /**
      * Duplications to match and execute against existing dependencies.
      * <p>
