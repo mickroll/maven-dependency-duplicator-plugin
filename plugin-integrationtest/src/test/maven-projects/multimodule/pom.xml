@@ -39,7 +39,7 @@
         <plugins>
             <plugin>
                 <groupId>com.github.madprogger</groupId>
-                <artifactId>maven-dependency-duplicator-plugin</artifactId>
+                <artifactId>dependency-duplicator-plugin</artifactId>
                 <version>${ddpVersion}</version>
                 <extensions>true</extensions>
                 <configuration>
