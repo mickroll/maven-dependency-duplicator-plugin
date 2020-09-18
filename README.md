@@ -122,3 +122,5 @@ Then the maven build of this module will run, as if the following dependencies w
         <scope>test</scope>
     </dependency>
 
+The integration tests show further example projects: [plugin-integrationtest/src/test/maven-projects](plugin-integrationtest/src/test/maven-projects)
+
