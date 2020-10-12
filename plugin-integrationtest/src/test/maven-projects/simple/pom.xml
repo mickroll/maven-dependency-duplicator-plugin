@@ -12,7 +12,7 @@
     <name>simple</name>
 
     <properties>
-        <ddpVersion>0.3.4-SNAPSHOT</ddpVersion>
+        <ddpVersion>0.3.4</ddpVersion>
     </properties>
     <build>
         <plugins>
