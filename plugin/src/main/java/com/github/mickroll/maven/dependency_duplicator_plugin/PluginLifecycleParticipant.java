@@ -62,6 +62,8 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
     public void afterProjectsRead(final MavenSession session) throws MavenExecutionException {
         logger.info("duplicating dependencies to projects in reactor");
 
+        final long startTime = System.currentTimeMillis();
+
         if (session.getProjectDependencyGraph() == null) {
             logger.warn("Current MavenSession does not provide a ProjectDependencyGraph. Building prior to use.");
             rebuildDependencyGraph(session);
@@ -74,7 +76,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         logger.info("rebuilding project dependency graph");
         rebuildDependencyGraph(session);
 
-        logger.info("finished.");
+        logger.info("finished after {}ms.", System.currentTimeMillis() - startTime);
     }
 
     private Optional<PluginMojo> findPluginConfig(final MavenSession session, final MavenProject project) {
