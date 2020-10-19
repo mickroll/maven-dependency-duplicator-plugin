@@ -62,15 +62,15 @@ Configure this plugin like any other maven plugin, for example in the root pom o
                 <targetType>...</targetType>
                 <targetClassifier>...</targetClassifier>
                 <addDownstream>...</addDownstream>
-                <extraDependencies>
-                    <extraDependency>
+                <additionalDependencies>
+                    <additionalDependency>
                         <groupId>...</groupId>
                         <artifactId>...</artifactId>
                         <version>...</version>
                         [...]
-                    </extraDependency>
+                    </additionalDependency>
                     [...]
-                </extraDependencies>
+                </additionalDependencies>
             </duplication>
             [...]
         </duplications>
@@ -83,7 +83,7 @@ Configure this plugin like any other maven plugin, for example in the root pom o
 | `targetScope` | same as original | defines the new `scope` of the duplicated dependency |
 | `targetType`  | same as original | defines the new `type` of the duplicated dependency |
 | `addDownstream` | `true` | Add duplicated dependencies also to downstream projects of the project they were found in. A downstream project is a project that directly or indirectly depends on the given project. |
-| `extraDependencies` | empty | additional dependencies to add, if source matched a dependency |
+| `additionalDependencies` | empty | additional dependencies to add, if source matched a dependency |
 
 Each dependency is treated independently, the first matching `duplication` wins.
 
