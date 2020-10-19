@@ -34,7 +34,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
     @Inject
     private DependencyGraphBuilder dependencyGraphBuilder;
 
-    // needs maven 3.7.0, see https://github.com/apache/maven/pull/368
+    // TODO #3: use GraphBuilder, as soon as available (needs maven 3.7.0, see https://github.com/apache/maven/pull/368 )
     // @Inject
     // private GraphBuilder graphBuilder;
 
@@ -46,6 +46,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
         if (session.getProjectDependencyGraph() == null) {
             LOG.warn("Current MavenSession does not provide a ProjectDependencyGraph.");
+            // TODO #3: build graph using GraphBuilder
             return;
         }
 
@@ -55,6 +56,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
         LOG.info("rebuilding project dependency graph");
         dependencyGraphBuilder.rebuildDependencyGraph(session);
+        // TODO #3: build graph using GraphBuilder, as soon as available (needs maven 3.7.0, see https://github.com/apache/maven/pull/368 )
 
         LOG.info("finished after {}ms.", System.currentTimeMillis() - startTime);
     }

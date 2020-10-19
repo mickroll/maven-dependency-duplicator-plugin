@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.ProjectDependencyGraph;
-import org.apache.maven.graph.GraphBuilder;
 import org.apache.maven.project.DuplicateProjectException;
 import org.apache.maven.project.ProjectSorter;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
@@ -14,7 +13,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Helps rebuilding the dependency graph.
  * <p>
- * Will be replaced with a call to {@link GraphBuilder}, as soon as available (needs maven 3.7.0, see https://github.com/apache/maven/pull/368 ).
+ * TODO #3: build graph using GraphBuilder, as soon as available (needs maven 3.7.0, see https://github.com/apache/maven/pull/368 ).
  *
  * @author mickroll
  */
