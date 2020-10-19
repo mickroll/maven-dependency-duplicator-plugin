@@ -66,8 +66,8 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         final long startTime = System.currentTimeMillis();
 
         if (session.getProjectDependencyGraph() == null) {
-            LOG.warn("Current MavenSession does not provide a ProjectDependencyGraph. Building prior to use.");
-            rebuildDependencyGraph(session);
+            LOG.warn("Current MavenSession does not provide a ProjectDependencyGraph.");
+            return;
         }
 
         final Map<MavenProject, DependencySet> newProjectDependencies = createDuplicateDependenciesForProjects(session);
