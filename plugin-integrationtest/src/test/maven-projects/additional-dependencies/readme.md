@@ -24,7 +24,7 @@ And the `surefire` configuration looks like this:
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
             <dependenciesToScan>
-                <dependency>org.example.extra-dependencies:*:test-jar:tests</dependency>
+                <dependency>org.example.additional-dependencies:*:test-jar:tests</dependency>
             </dependenciesToScan>
         </configuration>
     </plugin>

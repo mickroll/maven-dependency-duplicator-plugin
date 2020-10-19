@@ -4,12 +4,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example.extra-dependencies</groupId>
+    <groupId>org.example.additional-dependencies</groupId>
     <artifactId>parent</artifactId>
     <packaging>pom</packaging>
     <version>0.1.0-SNAPSHOT</version>
 
-    <name>extra-dependencies-parent</name>
+    <name>additional-dependencies-parent</name>
 
     <modules>
         <module>submod1</module>
@@ -45,16 +45,23 @@
                 <configuration>
                     <duplications>
                         <duplication>
-                            <source>org.example.extra-dependencies:submod1:jar</source>
+                            <dependencyKeys>
+                                <dependencyKey>org.example.additional-dependencies:submod1:jar</dependencyKey>
+                            </dependencyKeys>
                             <targetScope>test</targetScope>
                             <targetType>test-jar</targetType>
-                            <extraDependencies>
-                                <extraDependency>
+                            <additionalDependencies>
+                                <!-- without this additional dependency, a ClassNotFoundException would be thrown in UsingCommonsLang3Test, when it is run in submod2:
+                                     java.lang.ClassNotFoundException: org.apache.commons.lang3.StringUtils
+                                     
+                                     This demonstrates the need for defining additional dependencies.
+                                 -->
+                                <additionalDependency>
                                     <groupId>org.apache.commons</groupId>
                                     <artifactId>commons-lang3</artifactId>
                                     <version>3.11</version>
-                                </extraDependency>
-                            </extraDependencies>
+                                </additionalDependency>
+                            </additionalDependencies>
                         </duplication>
                     </duplications>
                 </configuration>
@@ -65,7 +72,7 @@
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
                     <dependenciesToScan>
-                        <dependency>org.example.extra-dependencies:*:test-jar:tests</dependency>
+                        <dependency>org.example.additional-dependencies:*:test-jar:tests</dependency>
                     </dependenciesToScan>
                 </configuration>
             </plugin>
