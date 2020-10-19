@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.inject.Inject;
+
 import org.apache.maven.AbstractMavenLifecycleParticipant;
 import org.apache.maven.MavenExecutionException;
 import org.apache.maven.execution.MavenSession;
@@ -30,7 +32,6 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectSorter;
 import org.codehaus.plexus.PlexusContainer;
 import org.codehaus.plexus.component.annotations.Component;
-import org.codehaus.plexus.component.annotations.Requirement;
 import org.codehaus.plexus.component.configurator.BasicComponentConfigurator;
 import org.codehaus.plexus.component.configurator.ComponentConfigurationException;
 import org.codehaus.plexus.configuration.PlexusConfiguration;
@@ -38,6 +39,7 @@ import org.codehaus.plexus.configuration.xml.XmlPlexusConfiguration;
 import org.codehaus.plexus.util.dag.CycleDetectedException;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.mickroll.maven.dependency_duplicator_plugin.config.DependencyDuplication;
 import com.github.mickroll.maven.dependency_duplicator_plugin.config.PluginMojo;
@@ -45,27 +47,26 @@ import com.github.mickroll.maven.dependency_duplicator_plugin.config.PluginMojo;
 @Component(role = AbstractMavenLifecycleParticipant.class)
 public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipant {
 
-    @Requirement
-    private Logger logger;
+    private static final Logger LOG = LoggerFactory.getLogger(PluginLifecycleParticipant.class);
 
-    @Requirement
+    @Inject
     private PlexusContainer container;
 
-    @Requirement
+    @Inject
     private MojoDescriptorCreator mojoDescriptorCreator;
 
     // needs maven 3.7.0, see https://github.com/apache/maven/pull/368
-    // @Requirement(hint = GraphBuilder.HINT)
+    // @Inject
     // private GraphBuilder graphBuilder;
 
     @Override
     public void afterProjectsRead(final MavenSession session) throws MavenExecutionException {
-        logger.info("duplicating dependencies to projects in reactor");
+        LOG.info("duplicating dependencies to projects in reactor");
 
         final long startTime = System.currentTimeMillis();
 
         if (session.getProjectDependencyGraph() == null) {
-            logger.warn("Current MavenSession does not provide a ProjectDependencyGraph. Building prior to use.");
+            LOG.warn("Current MavenSession does not provide a ProjectDependencyGraph. Building prior to use.");
             rebuildDependencyGraph(session);
         }
 
@@ -73,10 +74,10 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
         addNewDependenciesToProjects(newProjectDependencies);
 
-        logger.info("rebuilding project dependency graph");
+        LOG.info("rebuilding project dependency graph");
         rebuildDependencyGraph(session);
 
-        logger.info("finished after {}ms.", System.currentTimeMillis() - startTime);
+        LOG.info("finished after {}ms.", System.currentTimeMillis() - startTime);
     }
 
     private Optional<PluginMojo> findPluginConfig(final MavenSession session, final MavenProject project) {
@@ -92,17 +93,17 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         }
 
         if (plugin == null) {
-            logger.debug("plugin definition not found in project or parent projects");
+            LOG.debug("plugin definition not found in project or parent projects");
             return Optional.empty();
         }
         if (plugin.getConfiguration() == null) {
-            logger.debug("plugin configuration not found in project or parent projects");
+            LOG.debug("plugin configuration not found in project or parent projects");
             return Optional.empty();
         }
 
         try {
             final MojoDescriptor descriptor = mojoDescriptorCreator.getMojoDescriptor(PluginMojo.PLUGIN_KEY + ":" + PluginMojo.GOAL, session, projectCursor);
-            logger.debug("descriptor created " + descriptor);
+            LOG.debug("descriptor created " + descriptor);
 
             descriptor.setConfiguration(getConfig(plugin.getConfiguration()));
             final PlexusConfiguration config = getConfig(plugin.getConfiguration());
@@ -114,7 +115,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         } catch (PluginNotFoundException | PluginResolutionException | PluginDescriptorParsingException | MojoNotFoundException
                 | NoPluginFoundForPrefixException | InvalidPluginDescriptorException | PluginVersionResolutionException
                 | ComponentConfigurationException e) {
-            logger.error("unable to read plugin configuration ", e);
+            LOG.error("unable to read plugin configuration ", e);
             return Optional.empty();
         }
     }
@@ -134,7 +135,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         try {
             newSorter = new ProjectSorter(graph.getAllProjects());
         } catch (CycleDetectedException | DuplicateProjectException e) {
-            logger.error("unable to rebuild project dependency graph", e);
+            LOG.error("unable to rebuild project dependency graph", e);
             return;
         }
 
@@ -148,14 +149,15 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                 if ("org.apache.maven.graph.DefaultProjectDependencyGraph".equals(nestedGraph.getClass().getName())) {
                     replaceProjectSorter(nestedGraph, "sorter", newSorter);
                 } else {
-                    logger.warn("unable to rebuild project dependency graph, unexpected nested graph implementation found in {}: {}",
+                    LOG.warn(
+                            "unable to rebuild project dependency graph, unexpected nested graph implementation found in {}: {}",
                             graph.getClass().getName(), nestedGraph.getClass().getName());
                 }
             } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-                logger.error("unable to set rebuilt project dependency graph", e);
+                LOG.error("unable to set rebuilt project dependency graph", e);
             }
         } else {
-            logger.warn("unable to rebuild project dependency graph, unexpected graph implementation found: {}", graph.getClass().getName());
+            LOG.warn("unable to rebuild project dependency graph, unexpected graph implementation found: {}", graph.getClass().getName());
         }
     }
 
@@ -165,7 +167,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
             field.setAccessible(true);
             field.set(obj, newSorter);
         } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-            logger.error("unable to set rebuilt project dependency graph", e);
+            LOG.error("unable to set rebuilt project dependency graph", e);
         }
     }
 
@@ -174,11 +176,11 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         for (final MavenProject project : session.getAllProjects()) {
             final Optional<PluginMojo> pluginConfig = findPluginConfig(session, project);
             if (!pluginConfig.isPresent()) {
-                logger.info("[{}] did not find any plugin config", project.getName());
+                LOG.info("[{}] did not find any plugin config", project.getName());
                 continue;
             }
             final PluginMojo config = pluginConfig.get();
-            logger.debug("config for {}: {}", project.getName(), config);
+            LOG.debug("config for {}: {}", project.getName(), config);
             if (!config.hasDefinedDuplications()) {
                 continue;
             }
@@ -191,11 +193,12 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
                 final List<Dependency> newDependencies = new ArrayList<>();
                 newDependencies.add(dependencyDuplication.doDuplicate(existingDependency));
-                logger.debug("[{}] duplicating dependency {} because of {}",
+                LOG.debug(
+                        "[{}] duplicating dependency {} because of {}",
                         project.getName(), getNameForLog(existingDependency), dependencyDuplication.getSource());
 
                 if (!dependencyDuplication.getExtraDependencies().isEmpty()) {
-                    logger.debug("[{}] adding extra dependencies {}", getNamesForLog(dependencyDuplication.getExtraDependencies()));
+                    LOG.debug("[{}] adding extra dependencies {}", getNamesForLog(dependencyDuplication.getExtraDependencies()));
                     newDependencies.addAll(dependencyDuplication.getExtraDependencies());
                 }
 
@@ -216,7 +219,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         for (final Entry<MavenProject, DependencySet> entry : newProjectDependencies.entrySet()) {
             final MavenProject project = entry.getKey();
             final DependencySet newDependencies = entry.getValue();
-            logger.info("[{}] adding dependencies: {}", project.getName(), getNamesForLog(newDependencies.asSet()));
+            LOG.info("[{}] adding dependencies: {}", project.getName(), getNamesForLog(newDependencies.asSet()));
             project.getDependencies().addAll(newDependencies.asSet());
         }
     }
