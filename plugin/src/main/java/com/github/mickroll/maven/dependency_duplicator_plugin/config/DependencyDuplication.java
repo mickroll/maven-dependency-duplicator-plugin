@@ -56,7 +56,7 @@ public class DependencyDuplication {
      * Dependencies to add, if {@link #source} did match in a project.
      */
     @Parameter
-    List<Dependency> extraDependencies;
+    List<Dependency> additionalDependencies;
 
     /**
      * Determines, if given dependency is matched by the configured {@link #source} regExes.
@@ -82,8 +82,8 @@ public class DependencyDuplication {
         return clone;
     }
 
-    public List<Dependency> getExtraDependencies() {
-        return extraDependencies == null ? Collections.emptyList() : extraDependencies;
+    public List<Dependency> getAdditionalDependencies() {
+        return additionalDependencies == null ? Collections.emptyList() : additionalDependencies;
     }
 
     public String getSource() {
