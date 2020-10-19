@@ -45,7 +45,9 @@
                 <configuration>
                     <duplications>
                         <duplication>
-                            <source>org.example.multimodule:submod1:jar</source>
+                            <dependencyKeys>
+                                <dependencyKey>org.example.multimodule:submod1:jar</dependencyKey>
+                            </dependencyKeys>
                             <targetScope>test</targetScope>
                             <targetType>test-jar</targetType>
                         </duplication>

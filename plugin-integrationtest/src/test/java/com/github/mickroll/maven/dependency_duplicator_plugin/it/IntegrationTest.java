@@ -30,8 +30,8 @@ class IntegrationTest {
     }
 
     @Test
-    void testExtraDependencies() throws Exception {
-        final List<String> stdout = new MavenWrapper("extra-dependencies").run("install", 0);
+    void testAdditionalDependencies() throws Exception {
+        final List<String> stdout = new MavenWrapper("additional-dependencies").run("install", 0);
 
         assertThat(stdout).contains("USED COMMONS-LANG3!");
     }

@@ -2,6 +2,8 @@ package com.github.mickroll.maven.dependency_duplicator_plugin.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Arrays;
+
 import org.apache.maven.model.Dependency;
 import org.junit.jupiter.api.Test;
 
@@ -70,7 +72,7 @@ class DependencyDuplicationTest {
 
     @Test
     void testTwoDependencies() {
-        final DependencyDuplication config = dupl("org.example:someartifact:jar, org.example:otherartifact:jar");
+        final DependencyDuplication config = dupl("org.example:someartifact:jar", "org.example:otherartifact:jar");
 
         assertThat(config.matches(EXAMPLE_SOMEARTIFACT)).isTrue();
         assertThat(config.matches(EXAMPLE_OTHERARTIFACT)).isTrue();
@@ -172,9 +174,9 @@ class DependencyDuplicationTest {
         assertThat(clone.getScope()).isEqualTo(dependency.getScope());
     }
 
-    private static DependencyDuplication dupl(final String sourceRegEx) {
+    private static DependencyDuplication dupl(final String... sourceRegEx) {
         final DependencyDuplication result = new DependencyDuplication();
-        result.source = sourceRegEx;
+        result.dependencyKeys = Arrays.asList(sourceRegEx);
         return result;
     }
 

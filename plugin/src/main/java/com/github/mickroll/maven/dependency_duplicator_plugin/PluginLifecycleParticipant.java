@@ -84,7 +84,7 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                 final List<Dependency> newDependencies = new ArrayList<>();
                 newDependencies.add(dependencyDuplication.doDuplicate(existingDependency));
                 LOG.debug("[{}] duplicating dependency {} because of {}",
-                        project.getName(), getNameForLog(existingDependency), dependencyDuplication.getSource());
+                        project.getName(), getNameForLog(existingDependency), dependencyDuplication.getdependencyKeys());
 
                 if (!dependencyDuplication.getAdditionalDependencies().isEmpty()) {
                     LOG.debug("[{}] adding additional dependencies {}", getNamesForLog(dependencyDuplication.getAdditionalDependencies()));

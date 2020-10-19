@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.example.extra-dependencies</groupId>
+        <groupId>org.example.additional-dependencies</groupId>
         <artifactId>parent</artifactId>
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <name>extra-dependencies-submod1</name>
+    <name>additional-dependencies-submod1</name>
 
     <artifactId>submod1</artifactId>
     <packaging>jar</packaging>
