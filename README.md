@@ -40,7 +40,7 @@ Add the plugin to the maven build by registering it as build extension as follow
                 <artifactId>dependency-duplicator-plugin</artifactId>
                 <!-- hint: don't forget to define the following property with current plugin version -->
                 <version>${dependency-duplicator-plugin.version}</version>
-                <!-- this is important, so the plugin is effectively used as an extension -->
+                <!-- this is important, so the plugin is effectively used as a build extension -->
                 <extensions>true</extensions>
             </plugin>
         </plugins>
@@ -57,20 +57,20 @@ Configure this plugin like any other maven plugin, for example in the root pom o
     <configuration>
         <duplications>
             <duplication>
-                <source>...</source>
+                <dependencyKeys>...</dependencyKeys>
                 <targetScope>...</targetScope>
                 <targetType>...</targetType>
                 <targetClassifier>...</targetClassifier>
                 <addDownstream>...</addDownstream>
-                <extraDependencies>
-                    <extraDependency>
+                <additionalDependencies>
+                    <additionalDependency>
                         <groupId>...</groupId>
                         <artifactId>...</artifactId>
                         <version>...</version>
                         [...]
-                    </extraDependency>
+                    </additionalDependency>
                     [...]
-                </extraDependencies>
+                </additionalDependencies>
             </duplication>
             [...]
         </duplications>
@@ -78,12 +78,12 @@ Configure this plugin like any other maven plugin, for example in the root pom o
 
 | key | default&nbsp;value | description |
 | ---      | ---     | ---         |
-| `source` | - | dependencies to duplicate, as a comma separated list in the form: `groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier], groupId:artifactId:type[:classifier]` Each dependency definition is treated as a regular expression, being matched against each existing dependency. |
+| `dependencyKeys` | - | dependencies to duplicate, in the form: `groupId:artifactId:type[:classifier]` Each dependency definition is treated as a regular expression, being matched against each existing dependency. |
 | `targetClassifier`  | same as original | defines the new `classifier` of the duplicated dependency |
 | `targetScope` | same as original | defines the new `scope` of the duplicated dependency |
 | `targetType`  | same as original | defines the new `type` of the duplicated dependency |
 | `addDownstream` | `true` | Add duplicated dependencies also to downstream projects of the project they were found in. A downstream project is a project that directly or indirectly depends on the given project. |
-| `extraDependencies` | empty | additional dependencies to add, if source matched a dependency |
+| `additionalDependencies` | empty | additional dependencies to add, if `dependencyKeys` matched a dependency |
 
 Each dependency is treated independently, the first matching `duplication` wins.
 
@@ -96,7 +96,10 @@ If the following configuration is defined in the root pom.xml of a multi module 
     <configuration>
         <duplications>
             <duplication>
-                <source>org.example:project-1:jar, org.example:sub-.*:jar</source>
+                <dependencyKeys>
+                    <dependencyKey>org.example:project-1:jar</dependencyKey>
+                    <dependencyKey>org.example:sub-.*:jar</dependencyKey>
+                </dependencyKeys>
                 <targetScope>test</targetScope>
                 <targetType>test-jar</targetType>
             </duplication>

@@ -3,7 +3,6 @@ package com.github.mickroll.maven.dependency_duplicator_plugin.config;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -16,11 +15,10 @@ import org.apache.maven.plugins.annotations.Parameter;
 public class DependencyDuplication {
 
     /**
-     * Defines a comma separated list of regular expressions in the form {@code groupId:artifactId:type[:classifier]} that is used to match against
-     * dependencies.
+     * Defines a list of regular expressions in the form {@code groupId:artifactId:type[:classifier]} that is used to match against existing dependencies.
      */
     @Parameter(required = true)
-    String source;
+    List<String> dependencyKeys;
 
     /**
      * New scope for duplicated dependency.
@@ -53,24 +51,22 @@ public class DependencyDuplication {
     boolean addDownstream;
 
     /**
-     * Dependencies to add, if {@link #source} did match in a project.
+     * Dependencies to add, if {@link #dependencyKeys} did match in a project.
      */
     @Parameter
-    List<Dependency> extraDependencies;
+    List<Dependency> additionalDependencies;
 
     /**
-     * Determines, if given dependency is matched by the configured {@link #source} regExes.
+     * Determines, if given dependency is matched by the configured {@link #dependencyKeys} regExes.
      *
      * @param dependency dependency
-     * @return {@code true}, if management key of dependency is matched by source regEx
+     * @return {@code true}, if management key of dependency is matched by dependencyPattern regEx
      * @see Dependency#getManagementKey()
      * @see String#matches(String)
      */
     public boolean matches(final Dependency dependency) {
-        return Stream.of(source.split(","))
-                .map(String::trim)
-                .filter(element -> !element.isEmpty())
-                .anyMatch(element -> dependency.getManagementKey().matches(element));
+        return getdependencyKeys().stream()
+                .anyMatch(pattern -> dependency.getManagementKey().matches(pattern));
     }
 
     public Dependency doDuplicate(final Dependency source) {
@@ -82,12 +78,12 @@ public class DependencyDuplication {
         return clone;
     }
 
-    public List<Dependency> getExtraDependencies() {
-        return extraDependencies == null ? Collections.emptyList() : extraDependencies;
+    public List<String> getdependencyKeys() {
+        return dependencyKeys == null ? Collections.emptyList() : dependencyKeys;
     }
 
-    public String getSource() {
-        return source;
+    public List<Dependency> getAdditionalDependencies() {
+        return additionalDependencies == null ? Collections.emptyList() : additionalDependencies;
     }
 
     public Optional<String> getTargetScope() {
@@ -108,10 +104,12 @@ public class DependencyDuplication {
 
     @Override
     public String toString() {
-        return "{source=" + source
+        return "{"
+                + (dependencyKeys != null ? "dependencyPatterns=" + dependencyKeys : "")
                 + (targetScope != null ? ", targetScope=" + targetScope : "")
                 + (targetType != null ? ", targetType=" + targetType : "")
                 + (targetClassifier != null ? ", targetClassifier=" + targetClassifier : "")
-                + ", addDownstream=" + addDownstream + "}";
+                + ", addDownstream=" + addDownstream
+                + "}";
     }
 }
