@@ -57,7 +57,10 @@ Configure this plugin like any other maven plugin, for example in the root pom o
     <configuration>
         <duplications>
             <duplication>
-                <dependencyKeys>...</dependencyKeys>
+                <dependencyKeys>
+                    <dependencyKey>...</dependencyKey>
+                    [...]
+                </dependencyKeys>
                 <targetScope>...</targetScope>
                 <targetType>...</targetType>
                 <targetClassifier>...</targetClassifier>
