@@ -65,7 +65,7 @@ public class DependencyDuplication {
      * @see String#matches(String)
      */
     public boolean matches(final Dependency dependency) {
-        return getdependencyKeys().stream()
+        return getDependencyKeys().stream()
                 .anyMatch(pattern -> dependency.getManagementKey().matches(pattern));
     }
 
@@ -78,7 +78,7 @@ public class DependencyDuplication {
         return clone;
     }
 
-    public List<String> getdependencyKeys() {
+    public List<String> getDependencyKeys() {
         return dependencyKeys == null ? Collections.emptyList() : dependencyKeys;
     }
 

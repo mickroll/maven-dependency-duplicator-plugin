@@ -52,10 +52,12 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
 
         final Map<MavenProject, DependencySet> newProjectDependencies = createDuplicateDependenciesForProjects(session);
 
-        addNewDependenciesToProjects(newProjectDependencies);
+        if (!newProjectDependencies.isEmpty()) {
+            addNewDependenciesToProjects(newProjectDependencies);
 
-        LOG.info("rebuilding project dependency graph");
-        dependencyGraphBuilder.rebuildDependencyGraph(session);
+            LOG.info("rebuilding project dependency graph");
+            dependencyGraphBuilder.rebuildDependencyGraph(session);
+        }
         // TODO #3: build graph using GraphBuilder, as soon as available (needs maven 3.7.0, see https://github.com/apache/maven/pull/368 )
 
         LOG.info("finished after {}ms.", System.currentTimeMillis() - startTime);
@@ -84,10 +86,10 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
                 final List<Dependency> newDependencies = new ArrayList<>();
                 newDependencies.add(dependencyDuplication.doDuplicate(existingDependency));
                 LOG.debug("[{}] duplicating dependency {} because of {}",
-                        project.getName(), getNameForLog(existingDependency), dependencyDuplication.getdependencyKeys());
+                        project.getName(), getNameForLog(project, existingDependency), dependencyDuplication.getDependencyKeys());
 
                 if (!dependencyDuplication.getAdditionalDependencies().isEmpty()) {
-                    LOG.debug("[{}] adding additional dependencies {}", getNamesForLog(dependencyDuplication.getAdditionalDependencies()));
+                    LOG.debug("[{}] adding additional dependencies {}", getNamesForLog(project, dependencyDuplication.getAdditionalDependencies()));
                     newDependencies.addAll(dependencyDuplication.getAdditionalDependencies());
                 }
 
@@ -108,16 +110,23 @@ public class PluginLifecycleParticipant extends AbstractMavenLifecycleParticipan
         for (final Entry<MavenProject, DependencySet> entry : newProjectDependencies.entrySet()) {
             final MavenProject project = entry.getKey();
             final DependencySet newDependencies = entry.getValue();
-            LOG.info("[{}] adding dependencies: {}", project.getName(), getNamesForLog(newDependencies.asSet()));
+            LOG.info("[{}] adding dependencies: {}", project.getName(), getNamesForLog(project, newDependencies.asSet()));
             project.getDependencies().addAll(newDependencies.asSet());
         }
     }
 
-    private String getNameForLog(final Dependency dependency) {
-        return dependency.getManagementKey() + ":" + dependency.getScope();
+    private Collection<String> getNamesForLog(final MavenProject project, final Collection<Dependency> dependencies) {
+        return dependencies.stream()
+                .map(dependency -> getNameForLog(project, dependency))
+                .collect(Collectors.toList());
     }
 
-    private Collection<String> getNamesForLog(final Collection<Dependency> dependencies) {
-        return dependencies.stream().map(this::getNameForLog).collect(Collectors.toList());
+    private String getNameForLog(final MavenProject project, final Dependency dependency) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(dependency.getManagementKey().replace(project.getGroupId(), "."));
+        if (dependency.getScope() != null) {
+            sb.append(':').append(dependency.getScope());
+        }
+        return sb.toString();
     }
 }
